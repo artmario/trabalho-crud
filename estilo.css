@@ -1,0 +1,42 @@
+.page{
+    background-color: black;
+    display: flex;
+    flex-direction: column;
+}
+.container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+.formulario{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 80%;
+    height: 50%;
+    background-color: white;
+    border-radius: 5px;
+}
+.campo
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.resultados{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    width: 80%;
+    height: 50%;
+    border-radius: 5px;
+}
+
+table, th, td {
+    border: 1px solid black;
+  }
