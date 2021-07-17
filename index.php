@@ -65,6 +65,7 @@ if (isset($_POST['acao']) && $_POST['acao'] != '') {
             if ($res) {
 
                 $produtos = $res->fetch_all(MYSQLI_ASSOC);
+                mysqli_free_result($res);
                 if (count($produtos) > 0) {
                     echo "<table class=\"resultados\">";
                     echo "<tr> <th>nome</th><th>id</th><th>x</th><th>x</th></tr>";
@@ -78,7 +79,7 @@ if (isset($_POST['acao']) && $_POST['acao'] != '') {
                     }
                     echo "</table>";
                 } else {
-                    echo "sem registros";
+                    echo "<p class=\"resultados\">sem registros<p>";
                 }
             }
         }
@@ -121,10 +122,14 @@ function inserir()
     if (isset($_POST['nome']) && isset($_POST['id'])) {
         $prod = new Produto($_POST['id'], $_POST['nome']);
         $stm = $banco->mysqli->prepare("INSERT INTO produtos (nome,id) VALUES( ?,? ) ");
-        $stm->bind_param("si", $_POST['nome'], $_POST['id']);
-        $stm->execute();
-        if ($stm->error != '') {
-            $_SESSION['error'] = $stm->error;
+        if ($stm != false) {
+            $stm->bind_param("si", $_POST['nome'], $_POST['id']);
+            $stm->execute();
+            if ($stm->error != '') {
+                $_SESSION['error'] = $stm->error;
+            }
+        } else {
+            $_SESSION['error'] = "erro de banco";
         }
     }
 }
