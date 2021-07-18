@@ -40,11 +40,11 @@ if (isset($_POST['acao']) && $_POST['acao'] != '') {
             ?>
             <div class="campo">
                 <label for="nome">nome</label>
-                <input type="text" name="nome" id="nome" value="<?php echo (getvalor($edicao_id, 1)); ?>">
+                <input type="text" name="nome" id="nome" value="<?php echo (isset($edicao_id) ? getvalor($edicao_id, 1) : ""); ?>">
             </div>
             <div class="campo">
                 <label for="id">id</label>
-                <input type="number" name="id" id="id" value="<?php echo (getvalor($edicao_id, 0)); ?>">
+                <input type="number" name="id" id="id" value="<?php echo (isset($edicao_id) ? getvalor($edicao_id, 0) : ""); ?>">
             </div>
             <?php
             if (!$edicao) {
@@ -61,26 +61,22 @@ if (isset($_POST['acao']) && $_POST['acao'] != '') {
         <?php
         global $banco;
         if (isset($banco)) {
-            $res = $banco->mysqli->query("SELECT * FROM produtos");
-            if ($res) {
 
-                $produtos = $res->fetch_all(MYSQLI_ASSOC);
-                mysqli_free_result($res);
-                if (count($produtos) > 0) {
-                    echo "<table class=\"resultados\">";
-                    echo "<tr> <th>nome</th><th>id</th><th>x</th><th>x</th></tr>";
-                    foreach ($produtos as $produto) {
-                        echo "<tr><form method='POST'>";
-                        echo " <input type='hidden' name='editado' value='" . $produto['id'] . "' >";
-                        echo ("<td>" . $produto['nome'] . "</td><td> " . $produto['id'] . "</td>");
-                        echo "<td><input type='submit' name='acao' value='Apagar'>";
-                        echo "<td><input type='submit' name='acao' value='Editar'>";
-                        echo ("</form></tr>");
-                    }
-                    echo "</table>";
-                } else {
-                    echo "<p class=\"resultados\">sem registros<p>";
+            $produtos = $banco->listarProdutos();
+            if (count($produtos) > 0) {
+                echo "<table class=\"resultados\">";
+                echo "<tr><th>nome</th><th>id</th><th>----</th><th>----</th></tr>";
+                foreach ($produtos as $produto) {
+                    echo "<tr><form method='POST'>";
+                    echo " <input type='hidden' name='editado' value='" . $produto['id'] . "' >";
+                    echo ("<td>" . $produto['nome'] . "</td><td> " . $produto['id'] . "</td>");
+                    echo "<td><input type='submit' name='acao' value='Apagar'>";
+                    echo "<td><input type='submit' name='acao' value='Editar'>";
+                    echo ("</form></tr>");
                 }
+                echo "</table>";
+            } else {
+                echo "<p class=\"resultados\">sem registros<p>";
             }
         }
         ?>
@@ -96,9 +92,10 @@ if (isset($banco)) {
 }
 function processarAcao($acao)
 {
+    global $banco;
     switch ($acao) {
         case 'Atualizar':
-            if (verificaForm()) atualizar();
+            if (verificaForm()) $banco->atualizar();
             break;
         case 'Salvar':
             if (verificaForm()) inserir();
@@ -132,20 +129,6 @@ function inserir()
             $_SESSION['error'] = "erro de banco";
         }
     }
-}
-function atualizar()
-{
-    global $banco, $edicao_id;
-    if (isset($_POST['nome']) && isset($_POST['id'])) {
-        $prod = new Produto($_POST['id'], $_POST['nome']);
-        $stm = $banco->mysqli->prepare("UPDATE produtos set nome=?,id=? WHERE id = ?");
-        $stm->bind_param("sii", $_POST['nome'], $_POST['id'], $_SESSION['id_editar']);
-        $stm->execute();
-        if ($stm->error != '') {
-            $_SESSION['error'] = $stm->error;
-        }
-    }
-    $edicao = false;
 }
 
 function getvalor($id, $col)
